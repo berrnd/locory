@@ -39,4 +39,21 @@ class LOCH
 			$this->AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
 		}
 	}
+
+	function GetLocationPoints($from, $to)
+	{
+		$db = $this->GetDbConnection();
+
+		$statement = $db->prepare('SELECT * FROM locationpoints WHERE time >= :from AND time <= :to');
+		$statement->bindValue(':from', $from);
+		$statement->bindValue(':to', $to);
+		$statement->execute();
+
+		$rows = array();
+		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+			$rows[] = $row;
+		}
+
+		return $rows;
+	}
 }

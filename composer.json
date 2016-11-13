@@ -1,6 +1,9 @@
 {
     "require": {
         "slim/slim": "^3.5",
-        "tuupola/slim-basic-auth": "^2.2"
+        "tuupola/slim-basic-auth": "^2.2",
+        "twbs/bootstrap": "3.3.7",
+        "components/font-awesome": "4.7.0",
+        "drmonty/leaflet": "1.0.1"
     }
 }
