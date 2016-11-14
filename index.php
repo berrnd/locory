@@ -21,17 +21,28 @@ $app->add(new \Slim\Middleware\HttpBasicAuthentication([
 $app->post('/api/add/csv', function (Request $request, Response $response)
 {
 	$loch = new LOCH();
+
 	$loch->AddCsvData($request->getBody()->getContents());
 
 	return $response;
 });
 
-$app->get('/api/get/{from}/{to}', function (Request $request, Response $response, $args)
+$app->get('/api/get/locationpoints/{from}/{to}', function (Request $request, Response $response, $args)
 {
 	$loch = new LOCH();
 
-	header('Content-Type: application/json');
-	echo json_encode($loch->GetLocationPoints($args['from'], $args['to']));
+	$response = $response->withHeader('Content-Type', 'application/json');
+	echo json_encode($loch->GetLocationPoints($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
+
+	return $response;
+});
+
+$app->get('/api/get/statistics/{from}/{to}', function (Request $request, Response $response, $args)
+{
+	$loch = new LOCH();
+
+	$response = $response->withHeader('Content-Type', 'application/json');
+	echo json_encode($loch->GetLocationPointStatistics($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
 
 	return $response;
 });

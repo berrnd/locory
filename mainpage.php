@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -14,7 +14,8 @@
 	<link href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
 	<link href="/vendor/components/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
 	<link href="/vendor/drmonty/leaflet/css/leaflet.css" rel="stylesheet" />
-	<link href="/fonts/open-sans.css" rel="stylesheet" />
+	<link href="/vendor/webfontkit/open-sans/open-sans.min.css" rel="stylesheet" />
+	<link href="/vendor/rohnstock/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" />
 	<link href="/style.css" rel="stylesheet" />
 </head>
 
@@ -25,22 +26,24 @@
 				<div class="inner content">
 
 					<h1 class="content-heading">LOCH</h1>
+					
 					<div class="little-more-space"></div>
 
 					<div class="content-separator"></div>
 
-					<form class="form-inline">
-						<div class="form-group">
-							<label for="inputFrom" class="control-label">From</label>
-							<input type="date" class="form-control" id="inputFrom" placeholder="From">
-						</div>
-						<div class="form-group">
-							<label for="inputTo" class="control-label">To</label>
-							<input type="date" class="form-control" id="inputTo" placeholder="To">
-						</div>
-					</form>
+					<div id="daterange">
+						<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+						<span></span>
+						<b class="caret"></b>
+					</div>
 
-					<div class="little-more-space"></div>
+					<div class="little-space"></div>
+
+					<div id="summary" class="well container">
+						<strong><span id="summary-location-points"></span></strong> location points - accuracy varies between <strong><span id="summary-accuracy-min"></span> m</strong> and <strong><span id="summary-accuracy-max"></span> m</strong> (average <strong><span id="summary-accuracy-average"></span> m</strong>).
+					</div>
+
+					<div class="little-space"></div>
 
 					<div>
 
@@ -53,7 +56,7 @@
 					<div class="footer">
 
 						<div class="copyright">
-							LOCH is a project by <a class="discrete-link" href="https://berrnd.de" targete="_blank">Bernd Bestel</a>
+							LOCH is a project by <a class="discrete-link" href="https://berrnd.de" target="_blank">Bernd Bestel</a>
 							<br />
 							Created with passion since 2016
 							<br />
@@ -70,60 +73,53 @@
 			</div>
 		</div>
 	</div>
-	<script src="/LOCH.js"></script>
 	<script src="/vendor/drmonty/leaflet/js/leaflet.min.js"></script>
+	<script src="/vendor/components/jquery/jquery.min.js"></script>
+	<script src="/vendor/moment/moment/min/moment.min.js"></script>
+	<script src="/vendor/rohnstock/bootstrap-daterangepicker/daterangepicker.js"></script>
+	<script src="/LOCH.js"></script>
 	<script>
-		LOCH.Map = L.map('map');
-		LOCH.LocationPointsLayer = new L.FeatureGroup();
-		LOCH.Map.addLayer(LOCH.LocationPointsLayer);
+		LOCH.SetupMap("map");
 
-		var defaultFrom = new Date().addDays(-1).toISOString().substring(0, 10);
-		var defaultTo = new Date().toISOString().substring(0, 10);
-
-		document.getElementById('inputFrom').value = defaultFrom;
-		document.getElementById('inputTo').value = defaultTo;
-
-		L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: 'Map data &copy; <a target="_blank" href="https://www.openstreetmap.org">OpenStreetMap</a> contributors',
-			maxZoom: 18
-		}).addTo(LOCH.Map);
-
-		document.getElementById('inputFrom').addEventListener('input', function () {
-			LoadLocationPoints();
-		});
-
-		document.getElementById('inputTo').addEventListener('input', function () {
-			LoadLocationPoints();
-		});
-
-		LoadLocationPoints();
-
-		function LoadLocationPoints() {
-			var from = document.getElementById('inputFrom').value;
-			var to = document.getElementById('inputTo').value;
-
-			if (IsDate(from) && IsDate(to)) {
-				LOCH.Map.removeLayer(LOCH.LocationPointsLayer);
-				LOCH.LocationPointsLayer = new L.FeatureGroup();
-				LOCH.Map.addLayer(LOCH.LocationPointsLayer);
-				
-				LOCH.FetchJson('/api/get/' + from + '/' + to,
-					function (points) {
-						var mapViewSet = false;
-						for (point of points) {
-							if (!mapViewSet) {
-								LOCH.Map.setView([point.latitude, point.longitude], 13);
-								mapViewSet = true;
-							}
-							L.marker([point.latitude, point.longitude]).addTo(LOCH.LocationPointsLayer);
-						}
-					},
-					function (xhr) {
-						console.error(xhr);
-					}
-				);
+		$(function ()
+		{
+			function SetDateRangeDisplay(start, end)
+			{
+				$("#daterange span").html(start.format("YYYY-MM-DD") + " - " + end.format("YYYY-MM-DD"));
 			}
-		}
+
+			$("#daterange").daterangepicker(
+			{
+				startDate: LOCH.DefaultFrom,
+				endDate: LOCH.DefaultTo,
+				showWeekNumbers: true,
+				alwaysShowCalendars: true,
+				showDropdowns: true,
+				opens: "center",
+				locale:
+				{
+					format: "YYYY-MM-DD",
+					firstDay: 1
+				},
+				ranges:
+				{
+					"Today": [moment(), moment()],
+					"Yesterday": [moment().subtract(1, "days"), moment().subtract(1, "days")],
+					"Last 7 Days": [moment().subtract(6, "days"), moment()],
+					"Last 30 Days": [moment().subtract(29, "days"), moment()],
+					"This Month": [moment().startOf("month"), moment().endOf("month")],
+					"Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+				}
+			}, SetDateRangeDisplay);
+
+			$("#daterange").on("apply.daterangepicker", function (ev, picker)
+			{
+				LOCH.Reload(picker.startDate.format("YYYY-MM-DD"), picker.endDate.format("YYYY-MM-DD"));
+			});
+
+			SetDateRangeDisplay(LOCH.DefaultFrom, LOCH.DefaultTo);
+			LOCH.Reload(LOCH.DefaultFrom.format("YYYY-MM-DD"), LOCH.DefaultTo.format("YYYY-MM-DD"));
+		});
 	</script>
 </body>
 </html>

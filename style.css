@@ -150,6 +150,14 @@ a.discrete-link {
 	height: 750px;
 }
 
+#daterange {
+	cursor: pointer;
+}
+
+#summary {
+	width: 40%;
+}
+
 @media (max-width: 1200px) {
 	.content-container {
 		width: 100%;

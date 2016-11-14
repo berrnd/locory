@@ -50,10 +50,28 @@ class LOCH
 		$statement->execute();
 
 		$rows = array();
-		while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+		while ($row = $statement->fetch(PDO::FETCH_ASSOC))
+		{
 			$rows[] = $row;
 		}
 
 		return $rows;
+	}
+
+	function GetLocationPointStatistics($from, $to)
+	{
+		$db = $this->GetDbConnection();
+
+		$statement = $db->prepare('SELECT MIN(accuracy) AS AccuracyMin, MAX(accuracy) AS AccuracyMax, AVG(accuracy) AS AccuracyAverage FROM locationpoints WHERE time >= :from AND time <= :to');
+		$statement->bindValue(':from', $from);
+		$statement->bindValue(':to', $to);
+		$statement->execute();
+
+		while ($row = $statement->fetch(PDO::FETCH_ASSOC))
+		{
+			return $row;
+		}
+
+		return null;
 	}
 }

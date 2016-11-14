@@ -23,19 +23,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="composer.json" />
-    <Content Include="fonts\open-sans-v13-latin-regular.eot" />
-    <Content Include="fonts\open-sans-v13-latin-regular.svg" />
-    <Content Include="fonts\open-sans-v13-latin-regular.ttf" />
-    <Content Include="fonts\open-sans-v13-latin-regular.woff" />
-    <Content Include="fonts\open-sans-v13-latin-regular.woff2" />
-    <Content Include="fonts\open-sans.css" />
     <Content Include="LOCH.js" />
     <Content Include="mainpage.php" />
     <Content Include="robots.txt" />
     <Content Include="style.css" />
     <Content Include="version.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="fonts\" />
   </ItemGroup>
 </Project>
