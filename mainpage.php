@@ -32,15 +32,22 @@
 					<div class="content-separator"></div>
 
 					<div id="daterange">
-						<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+						<i class="fa fa-calendar"></i>&nbsp;
 						<span></span>
-						<b class="caret"></b>
+						<b class="caret"></b><br />
+					</div>
+
+					<div class="little-space"></div>
+
+					<div id="daterange-navigation">
+						<a id="daterange-backward" role="button" class="btn btn-default"><i class="fa fa-arrow-left"></i></a>
+						<a id="daterange-forward" role="button" class="btn btn-default"><i class="fa fa-arrow-right"></i></a>
 					</div>
 
 					<div class="little-space"></div>
 
 					<div id="summary" class="well container">
-						<strong><span id="summary-location-points"></span></strong> location points - accuracy varies between <strong><span id="summary-accuracy-min"></span> m</strong> and <strong><span id="summary-accuracy-max"></span> m</strong> (average <strong><span id="summary-accuracy-average"></span> m</strong>).
+						<strong><span id="summary-location-points"></span></strong> location points, <strong><span id="summary-distance"></span> km</strong> total distance - accuracy varies between <strong><span id="summary-accuracy-min"></span> m</strong> and <strong><span id="summary-accuracy-max"></span> m</strong> (average <strong><span id="summary-accuracy-average"></span> m</strong>).
 					</div>
 
 					<div class="little-space"></div>
@@ -88,37 +95,68 @@
 				$("#daterange span").html(start.format("YYYY-MM-DD") + " - " + end.format("YYYY-MM-DD"));
 			}
 
-			$("#daterange").daterangepicker(
+			function MoveDateRange(forward)
 			{
-				startDate: LOCH.DefaultFrom,
-				endDate: LOCH.DefaultTo,
-				showWeekNumbers: true,
-				alwaysShowCalendars: true,
-				showDropdowns: true,
-				opens: "center",
-				locale:
-				{
-					format: "YYYY-MM-DD",
-					firstDay: 1
-				},
-				ranges:
-				{
-					"Today": [moment(), moment()],
-					"Yesterday": [moment().subtract(1, "days"), moment().subtract(1, "days")],
-					"Last 7 Days": [moment().subtract(6, "days"), moment()],
-					"Last 30 Days": [moment().subtract(29, "days"), moment()],
-					"This Month": [moment().startOf("month"), moment().endOf("month")],
-					"Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
-				}
-			}, SetDateRangeDisplay);
+				picker = $("#daterange").data("daterangepicker");
+				var days = moment.duration(picker.endDate.diff(picker.startDate)).asDays().toFixed(0);
 
-			$("#daterange").on("apply.daterangepicker", function (ev, picker)
+				if (forward == false)
+				{
+					days = days * -1;
+				}
+				
+				var newStartDate = picker.startDate.add(days, "days");
+				var newEndDate = picker.endDate.add(days, "days");
+
+				SetupDateRangePicker(newStartDate, newEndDate);
+				LOCH.ReloadMap(newStartDate, newEndDate);
+			}
+
+			function SetupDateRangePicker(from, to)
 			{
-				LOCH.Reload(picker.startDate.format("YYYY-MM-DD"), picker.endDate.format("YYYY-MM-DD"));
+				$("#daterange").daterangepicker(
+				{
+					startDate: from,
+					endDate: to,
+					showWeekNumbers: true,
+					alwaysShowCalendars: true,
+					showDropdowns: true,
+					opens: "center",
+					locale:
+					{
+						format: "YYYY-MM-DD",
+						firstDay: 1
+					},
+					ranges:
+					{
+						"Today": [moment(), moment()],
+						"Yesterday": [moment().subtract(1, "days"), moment().subtract(1, "days")],
+						"Last 7 Days": [moment().subtract(6, "days"), moment()],
+						"Last 30 Days": [moment().subtract(29, "days"), moment()],
+						"This Month": [moment().startOf("month"), moment().endOf("month")],
+						"Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+					}
+				}, SetDateRangeDisplay);
+
+				$("#daterange").on("apply.daterangepicker", function (ev, picker) {
+					LOCH.ReloadMap(picker.startDate, picker.endDate);
+				});
+
+				SetDateRangeDisplay(from, to);
+			}
+
+			$("#daterange-forward").click(function()
+			{
+				MoveDateRange(true);
 			});
 
-			SetDateRangeDisplay(LOCH.DefaultFrom, LOCH.DefaultTo);
-			LOCH.Reload(LOCH.DefaultFrom.format("YYYY-MM-DD"), LOCH.DefaultTo.format("YYYY-MM-DD"));
+			$("#daterange-backward").click(function()
+			{
+				MoveDateRange(false);
+			});
+
+			SetupDateRangePicker(LOCH.DefaultFrom, LOCH.DefaultTo);
+			LOCH.ReloadMap(LOCH.DefaultFrom, LOCH.DefaultTo);
 		});
 	</script>
 </body>

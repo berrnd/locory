@@ -1,5 +1,8 @@
 <?php
 
+use Location\Coordinate;
+use Location\Distance\Vincenty;
+
 require_once 'config.php';
 
 class LOCH
@@ -62,16 +65,54 @@ class LOCH
 	{
 		$db = $this->GetDbConnection();
 
-		$statement = $db->prepare('SELECT MIN(accuracy) AS AccuracyMin, MAX(accuracy) AS AccuracyMax, AVG(accuracy) AS AccuracyAverage FROM locationpoints WHERE time >= :from AND time <= :to');
+		$statement = $db->prepare('SELECT MIN(accuracy) AS AccuracyMin, MAX(accuracy) AS AccuracyMax, AVG(accuracy) AS AccuracyAverage, SUM(distance_to_point_before) AS Distance FROM locationpoints WHERE time >= :from AND time <= :to');
 		$statement->bindValue(':from', $from);
 		$statement->bindValue(':to', $to);
 		$statement->execute();
 
-		while ($row = $statement->fetch(PDO::FETCH_ASSOC))
-		{
-			return $row;
-		}
+		return $statement->fetch(PDO::FETCH_ASSOC);
+	}
 
-		return null;
+	function CalculateLocationPointDistances()
+	{
+		$db = $this->GetDbConnection();
+		$distanceCalculator = new Vincenty();
+
+		$statementNotCalculatedRows = $db->prepare('SELECT id, time, latitude, longitude FROM locationpoints WHERE distance_to_point_before IS NULL ORDER BY time');
+		$statementNotCalculatedRows->execute();
+
+		$idPreviousRow = null;
+		while ($row = $statementNotCalculatedRows->fetch(PDO::FETCH_ASSOC))
+		{
+			if ($idPreviousRow == null)
+			{
+				//Try to get the row before, should only happen once when starting a new calculation
+
+				$statementRowBefore = $db->prepare('SELECT id, latitude, longitude FROM locationpoints WHERE time < :time ORDER BY time DESC LIMIT 1');
+				$statementRowBefore->bindValue(':time', $row['time']);
+				$statementRowBefore->execute();
+				$rowBefore = $statementRowBefore->fetch(PDO::FETCH_ASSOC);
+
+				$idPreviousRow = $rowBefore['id'];
+				$latitudePreviousRow = $rowBefore['latitude'];
+				$longitudePreviousRow = $rowBefore['longitude'];
+			}
+
+			if ($idPreviousRow != null)
+			{
+				$coordinatePrevious = new Coordinate($latitudePreviousRow, $longitudePreviousRow);
+				$coordinateCurrent = new Coordinate($row['latitude'], $row['longitude']);
+				$distance = $distanceCalculator->getDistance($coordinatePrevious, $coordinateCurrent);
+
+				$statementUpdate = $db->prepare('UPDATE locationpoints SET distance_to_point_before = :distance WHERE id = :id');
+				$statementUpdate->bindValue(':distance', $distance);
+				$statementUpdate->bindValue(':id', $row['id']);
+				$statementUpdate->execute();
+			}
+
+			$idPreviousRow = $row['id'];
+			$latitudePreviousRow = $row['latitude'];
+			$longitudePreviousRow = $row['longitude'];
+		}
 	}
 }

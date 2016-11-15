@@ -155,15 +155,13 @@ a.discrete-link {
 }
 
 #summary {
-	width: 40%;
+	width: 60%;
 }
 
 @media (max-width: 1200px) {
-	.content-container {
-		width: 100%;
-	}
-
-	.card {
+	.content-container,
+	.card,
+	#summary {
 		width: 100%;
 	}
 }

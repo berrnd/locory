@@ -1,26 +1,12 @@
-﻿function IsDate(date)
-{
-	var parsedDate = Date.parse(date);
-
-	if (isNaN(date) && !isNaN(parsedDate))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-var LOCH = {};
+﻿var LOCH = {};
 LOCH.DefaultFrom = moment().subtract(1, "days");
 LOCH.DefaultTo = moment().subtract(1, "days");
 
-LOCH.FetchJson = function (url, success, error)
+LOCH.FetchJson = function(url, success, error)
 {
 	var xhr = new XMLHttpRequest();
 
-	xhr.onreadystatechange = function ()
+	xhr.onreadystatechange = function()
 	{
 		if (xhr.readyState === XMLHttpRequest.DONE)
 		{
@@ -49,7 +35,7 @@ LOCH.SetupMap = function(mapElementId)
 {
 	LOCH.Map = L.map(mapElementId);
 
-	L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+	L.tileLayer("https://osm-tile-cache.berrnd.org/{z}/{x}/{y}.png", {
 		attribution: 'Map data &copy; <a target="_blank" href="https://www.openstreetmap.org">OpenStreetMap</a> contributors',
 		maxZoom: 18
 	}).addTo(LOCH.Map);
@@ -58,44 +44,40 @@ LOCH.SetupMap = function(mapElementId)
 	LOCH.Map.addLayer(LOCH.LocationPointsLayer);
 }
 
-LOCH.Reload = function (from, to)
+LOCH.ReloadMap = function(from, to)
 {
-	if (IsDate(from) && IsDate(to))
+	if (moment.isMoment(from) && moment.isMoment(to))
 	{
 		LOCH.Map.removeLayer(LOCH.LocationPointsLayer);
 		LOCH.LocationPointsLayer = new L.FeatureGroup();
 		LOCH.Map.addLayer(LOCH.LocationPointsLayer);
 
-		LOCH.FetchJson("/api/get/locationpoints/" + from + "/" + to,
-			function (points)
+		LOCH.FetchJson("/api/get/locationpoints/" + from.format("YYYY-MM-DD") + "/" + to.format("YYYY-MM-DD"),
+			function(points)
 			{
-				var mapViewSet = false;
 				for (point of points)
 				{
-					if (!mapViewSet)
-					{
-						LOCH.Map.setView([point.latitude, point.longitude], 13);
-						mapViewSet = true;
-					}
 					L.marker([point.latitude, point.longitude]).addTo(LOCH.LocationPointsLayer);
 				}
 
+				LOCH.Map.fitBounds(LOCH.LocationPointsLayer.getBounds());
 				document.getElementById("summary-location-points").innerText = points.length;
 
-				LOCH.FetchJson("/api/get/statistics/" + from + "/" + to,
-					function (statistics)
+				LOCH.FetchJson("/api/get/statistics/" + from.format("YYYY-MM-DD") + "/" + to.format("YYYY-MM-DD"),
+					function(statistics)
 					{
 						document.getElementById("summary-accuracy-min").innerText = parseFloat(statistics.AccuracyMin).toFixed(0);
 						document.getElementById("summary-accuracy-max").innerText = parseFloat(statistics.AccuracyMax).toFixed(0);
 						document.getElementById("summary-accuracy-average").innerText = parseFloat(statistics.AccuracyAverage).toFixed(0);
+						document.getElementById("summary-distance").innerText = (parseFloat(statistics.Distance) / 1000).toFixed(1);
 					},
-					function (xhr)
+					function(xhr)
 					{
 						console.error(xhr);
 					}
 				);
 			},
-			function (xhr)
+			function(xhr)
 			{
 				console.error(xhr);
 			}
