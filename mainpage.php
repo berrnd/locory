@@ -20,63 +20,55 @@
 </head>
 
 <body>
-	<div class="site-wrapper">
-		<div class="site-wrapper-inner">
-			<div class="content-container center">
-				<div class="inner content">
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
 
-					<h1 class="content-heading">LOCH</h1>
+				<h1 class="bold">LOCH</h1>
 					
-					<div class="little-more-space"></div>
+				<div class="discrete-content-separator-2x"></div>
+				<div class="content-separator"></div>
 
-					<div class="content-separator"></div>
+				<div id="daterange">
+					<i class="fa fa-calendar"></i>&nbsp;
+					<span></span>
+					<b class="caret"></b><br />
+				</div>
 
-					<div id="daterange">
-						<i class="fa fa-calendar"></i>&nbsp;
-						<span></span>
-						<b class="caret"></b><br />
-					</div>
+				<div class="discrete-content-separator-2x"></div>
+				<div class="content-separator"></div>
 
-					<div class="little-space"></div>
+				<div id="daterange-navigation">
+					<a id="daterange-backward" role="button" class="btn btn-default"><i class="fa fa-arrow-left"></i></a>
+					<a id="daterange-forward" role="button" class="btn btn-default"><i class="fa fa-arrow-right"></i></a>
+				</div>
 
-					<div id="daterange-navigation">
-						<a id="daterange-backward" role="button" class="btn btn-default"><i class="fa fa-arrow-left"></i></a>
-						<a id="daterange-forward" role="button" class="btn btn-default"><i class="fa fa-arrow-right"></i></a>
-					</div>
+				<div class="discrete-content-separator-2x"></div>
 
-					<div class="little-space"></div>
+				<div id="summary" class="well container">
+					<p><strong><span id="summary-location-points"></span></strong>&nbsp;location points,&nbsp;<strong><span id="summary-distance"></span>&nbsp;km</strong>&nbsp;total distance - accuracy varies between&nbsp;<strong><span id="summary-accuracy-min"></span>&nbsp;m</strong>&nbsp;and&nbsp;<strong><span id="summary-accuracy-max"></span>&nbsp;m</strong>&nbsp;(average&nbsp;<strong><span id="summary-accuracy-average"></span>&nbsp;m</strong>).</p>
+				</div>
 
-					<div id="summary" class="well container">
-						<strong><span id="summary-location-points"></span></strong> location points, <strong><span id="summary-distance"></span> km</strong> total distance - accuracy varies between <strong><span id="summary-accuracy-min"></span> m</strong> and <strong><span id="summary-accuracy-max"></span> m</strong> (average <strong><span id="summary-accuracy-average"></span> m</strong>).
-					</div>
+				<div class="content-separator"></div>
 
-					<div class="little-space"></div>
+				<div id="map"></div>
 
-					<div>
+				<div class="footer">
 
-						<div class="content-separator"></div>
-
-						<div id="map"></div>
-
-					</div>
-
-					<div class="footer">
-
-						<div class="copyright">
-							LOCH is a project by <a class="discrete-link" href="https://berrnd.de" target="_blank">Bernd Bestel</a>
-							<br />
-							Created with passion since 2016
-							<br />
-							Version <?php echo file_get_contents('version.txt'); ?>
-							<br />
-							Life runs on code
-							<br />
-							<a class="discrete-link" href="https://github.com/berrnd/LOCH" target="_blank"><i class="fa fa-github"></i></a>
-						</div>
-
+					<div class="copyright">
+						LOCH is a project by <a class="discrete-link" href="https://berrnd.de" target="_blank">Bernd Bestel</a>
+						<br />
+						Created with passion since 2016
+						<br />
+						Version <?php echo file_get_contents('version.txt'); ?>
+						<br />
+						Life runs on code
+						<br />
+						<a class="discrete-link" href="https://github.com/berrnd/LOCH" target="_blank"><i class="fa fa-github"></i></a>
 					</div>
 
 				</div>
+
 			</div>
 		</div>
 	</div>
