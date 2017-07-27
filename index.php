@@ -2,23 +2,26 @@
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use Slim\Views\PhpRenderer;
 
-require_once 'vendor/autoload.php';
-require_once 'config.php';
-require_once 'LOCH.php';
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/data/config.php';
+require_once __DIR__ . '/LOCH.php';
+require_once __DIR__ . '/LochDbMigrator.php';
+require_once __DIR__ . '/LochDemoDataGenerator.php';
 
 $app = new \Slim\App;
 
 if (PHP_SAPI !== 'cli')
 {
-	$isHttpsReverseProxied = !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https';
-	$app->add(new \Slim\Middleware\HttpBasicAuthentication([
-		'realm' => 'LOCH',
-		'secure' => !$isHttpsReverseProxied,
-		'users' => [
-			HTTP_USER => HTTP_PASSWORD
-		]
+	$app = new \Slim\App(new \Slim\Container([
+		'settings' => [
+			'displayErrorDetails' => true,
+			'determineRouteBeforeAppMiddleware' => true
+		],
 	]));
+	$container = $app->getContainer();
+	$container['renderer'] = new PhpRenderer('./views');
 }
 
 if (PHP_SAPI === 'cli')
@@ -26,53 +29,123 @@ if (PHP_SAPI === 'cli')
 	$app->add(new \pavlakis\cli\CliRequest());
 }
 
-$app->post('/api/add/csv', function(Request $request, Response $response)
+if (!LOCH::IsDemoInstallation())
 {
-	$loch = new LOCH();
+	$sessionMiddleware = function(Request $request, Response $response, callable $next)
+	{
+		$route = $request->getAttribute('route');
+		$routeName = $route->getName();
 
-	$loch->AddCsvData($request->getBody()->getContents());
+		if (!LOCH::IsValidSession($_COOKIE['loch_session']) && $routeName !== 'login')
+		{
+			$response = $response->withRedirect('/login');
+		}
+		else
+		{
+			$response = $next($request, $response);
+		}
 
-	return $response;
+		return $response;
+	};
+
+	$app->add($sessionMiddleware);
+}
+
+$app->get('/login', function(Request $request, Response $response)
+{
+	return $this->renderer->render($response, '/layout.php', [
+		'title' => 'Login',
+		'contentPage' => 'login.php'
+	]);
+})->setName('login');
+
+$app->post('/login', function(Request $request, Response $response)
+{
+	$postParams = $request->getParsedBody();
+	if (isset($postParams['username']) && isset($postParams['password']))
+	{
+		if ($postParams['username'] === HTTP_USER && $postParams['password'] === HTTP_PASSWORD)
+		{
+			$sessionKey = LOCH::CreateSession();
+			setcookie('loch_session', $sessionKey, time()+2592000); //30 days
+
+			return $response->withRedirect('/');
+		}
+		else
+		{
+			return $response->withRedirect('/login?invalid=true');
+		}
+	}
+	else
+	{
+		return $response->withRedirect('/login?invalid=true');
+	}
+})->setName('login');
+
+$app->get('/logout', function(Request $request, Response $response)
+{
+	LOCH::RemoveSession($_COOKIE['loch_session']);
+	return $response->withRedirect('/');
 });
 
-$app->get('/api/get/locationpoints/{from}/{to}', function(Request $request, Response $response, $args)
+$app->get('/', function(Request $request, Response $response)
 {
-	$loch = new LOCH();
+	LOCH::GetDbConnection(true); //For database schema migration
 
-	echo json_encode($loch->GetLocationPoints($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
+	return $this->renderer->render($response, '/layout.php', [
+		'title' => 'Dashboard',
+		'contentPage' => 'dashboard.php'
+	]);
+});
 
+$app->group('/api', function()
+{
+	$this->post('/add/csv', function(Request $request, Response $response)
+	{
+		LOCH::AddCsvData($request->getBody()->getContents());
+		echo json_encode(array('success' => true));
+	});
+
+	$this->get('/get/locationpoints/{from}/{to}', function(Request $request, Response $response, $args)
+	{
+		echo json_encode(LOCH::GetLocationPoints($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
+	});
+
+	$this->get('/get/statistics/{from}/{to}', function(Request $request, Response $response, $args)
+	{
+		echo json_encode(LOCH::GetLocationPointStatistics($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
+	});
+})->add(function($request, $response, $next)
+{
+	$response = $next($request, $response);
 	return $response->withHeader('Content-Type', 'application/json');
 });
 
-$app->get('/api/get/statistics/{from}/{to}', function(Request $request, Response $response, $args)
+$app->group('/cli', function()
 {
-	$loch = new LOCH();
+	$this->get('/calculate/distance', function(Request $request, Response $response)
+	{
+		LOCH::CalculateLocationPointDistances();
+	});
 
-	echo json_encode($loch->GetLocationPointStatistics($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
-
-	return $response->withHeader('Content-Type', 'application/json');
-});
-
-$app->get('/cli/calculate/distance', function(Request $request, Response $response)
+	$this->get('/recreatedemo', function(Request $request, Response $response)
+	{
+		if (LOCH::IsDemoInstallation())
+		{
+			LochDemoDataGenerator::RecreateDemo();
+		}
+	});
+})->add(function($request, $response, $next)
 {
+	$response = $next($request, $response);
+
 	if (PHP_SAPI !== 'cli')
 	{
 		echo 'Please call this only from CLI';
 		return $response->withHeader('Content-Type', 'text/plain')->withStatus(400);
 	}
 
-	$loch = new LOCH();
-
-	$loch->CalculateLocationPointDistances();
-
-	return $response;
-});
-
-$app->get('/', function(Request $request, Response $response)
-{
-	include 'mainpage.php';
-
-	return $response;
+	return $response->withHeader('Content-Type', 'text/plain');
 });
 
 $app->run();

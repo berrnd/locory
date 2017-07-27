@@ -1,14 +1,8 @@
 {
-    "require": {
-        "slim/slim": "^3.5",
-        "tuupola/slim-basic-auth": "^2.2",
-        "twbs/bootstrap": "3.3.7",
-        "components/font-awesome": "4.7.0",
-        "drmonty/leaflet": "1.0.1",
-        "webfontkit/open-sans": "^1.0",
-        "rohnstock/bootstrap-daterangepicker": "2.1.24",
-        "components/jquery": "3.1.1",
-        "mjaschen/phpgeo": "^1.3",
-        "pavlakis/slim-cli": "^1.0"
-    }
+	"require": {
+		"slim/slim": "^3.8",
+		"slim/php-view": "^2.2",
+		"mjaschen/phpgeo": "^1.3",
+		"pavlakis/slim-cli": "^1.0"
+	}
 }

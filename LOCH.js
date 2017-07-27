@@ -1,6 +1,16 @@
 ﻿var LOCH = {};
-LOCH.DefaultFrom = moment().subtract(1, "days");
-LOCH.DefaultTo = moment().subtract(1, "days");
+
+$(function()
+{
+	var menuItem = $('.nav').find("[data-nav-for-page='" + LOCH.ContentPage + "']");
+	menuItem.addClass('active');
+
+	LOCH.DefaultFrom = moment().subtract(1, "days");
+	LOCH.DefaultTo = moment().subtract(1, "days");
+
+	$.timeago.settings.allowFuture = true;
+	$('time.timeago').timeago();
+});
 
 LOCH.FetchJson = function(url, success, error)
 {
@@ -44,43 +54,18 @@ LOCH.SetupMap = function(mapElementId)
 	LOCH.Map.addLayer(LOCH.LocationPointsLayer);
 }
 
-LOCH.ReloadMap = function(from, to)
+LOCH.GetUriParam = function(key)
 {
-	if (moment.isMoment(from) && moment.isMoment(to))
+	var currentUri = decodeURIComponent(window.location.search.substring(1));
+	var vars = currentUri.split('&');
+
+	for (i = 0; i < vars.length; i++)
 	{
-		LOCH.Map.removeLayer(LOCH.LocationPointsLayer);
-		LOCH.LocationPointsLayer = new L.FeatureGroup();
-		LOCH.Map.addLayer(LOCH.LocationPointsLayer);
+		var currentParam = vars[i].split('=');
 
-		LOCH.FetchJson("/api/get/locationpoints/" + from.format("YYYY-MM-DD") + "/" + to.format("YYYY-MM-DD"),
-			function(points)
-			{
-				for (point of points)
-				{
-					L.marker([point.latitude, point.longitude]).addTo(LOCH.LocationPointsLayer);
-				}
-
-				LOCH.Map.fitBounds(LOCH.LocationPointsLayer.getBounds());
-				document.getElementById("summary-location-points").innerText = points.length;
-
-				LOCH.FetchJson("/api/get/statistics/" + from.format("YYYY-MM-DD") + "/" + to.format("YYYY-MM-DD"),
-					function(statistics)
-					{
-						document.getElementById("summary-accuracy-min").innerText = parseFloat(statistics.AccuracyMin).toFixed(0);
-						document.getElementById("summary-accuracy-max").innerText = parseFloat(statistics.AccuracyMax).toFixed(0);
-						document.getElementById("summary-accuracy-average").innerText = parseFloat(statistics.AccuracyAverage).toFixed(0);
-						document.getElementById("summary-distance").innerText = (parseFloat(statistics.Distance) / 1000).toFixed(1);
-					},
-					function(xhr)
-					{
-						console.error(xhr);
-					}
-				);
-			},
-			function(xhr)
-			{
-				console.error(xhr);
-			}
-		);
+		if (currentParam[0] === key)
+		{
+			return currentParam[1] === undefined ? true : currentParam[1];
+		}
 	}
-}
+};

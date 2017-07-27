@@ -20,13 +20,26 @@
     <Compile Include="config-dist.php" />
     <Compile Include="index.php" />
     <Compile Include="LOCH.php" />
+    <Compile Include="LochDbMigrator.php" />
+    <Compile Include="LochDemoDataGenerator.php" />
+    <Compile Include="views\layout.php" />
+    <Compile Include="views\login.php" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bower.json" />
+    <Content Include="build.bat" />
     <Content Include="composer.json" />
     <Content Include="LOCH.js" />
-    <Content Include="mainpage.php" />
+    <Content Include="LOCH.png" />
+    <Content Include="views\dashboard.js" />
+    <Content Include="views\dashboard.php" />
+    <Content Include="README.md" />
     <Content Include="robots.txt" />
     <Content Include="style.css" />
     <Content Include="version.txt" />
+    <Content Include="views\login.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="views\" />
   </ItemGroup>
 </Project>

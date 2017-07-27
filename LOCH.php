@@ -3,25 +3,42 @@
 use Location\Coordinate;
 use Location\Distance\Vincenty;
 
-require_once 'config.php';
-
 class LOCH
 {
-	private $DbConnection;
-
-	function GetDbConnection()
+	private static $DbConnection;
+	/**
+	 * @return PDO
+	 */
+	public static function GetDbConnection($doMigrations = false)
 	{
-		if ($this->DbConnection == null)
+		if ($doMigrations === true)
 		{
-			$this->DbConnection = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
+			self::$DbConnection = null;
 		}
 
-		return $this->DbConnection;
+		if (self::$DbConnection == null)
+		{
+			self::$DbConnection = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASSWORD);
+			self::$DbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+			if ($doMigrations === true)
+			{
+				self::$DbConnection->exec("CREATE TABLE IF NOT EXISTS migrations (migration SMALLINT NOT NULL, execution_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (migration))");
+				LochDbMigrator::MigrateDb(self::$DbConnection);
+
+				if (self::IsDemoInstallation())
+				{
+					LochDemoDataGenerator::PopulateDemoData(self::$DbConnection);
+				}
+			}
+		}
+
+		return self::$DbConnection;
 	}
 
-	function AddLocationPoint($time, $latitude, $longitude, $accuracy)
+	public static function AddLocationPoint($time, $latitude, $longitude, $accuracy)
 	{
-		$db = $this->GetDbConnection();
+		$db = self::GetDbConnection();
 
 		$statement = $db->prepare('INSERT INTO locationpoints (time, latitude, longitude, accuracy) VALUES (:time, :latitude, :longitude, :accuracy)');
 		$statement->bindValue(':time', $time);
@@ -32,20 +49,20 @@ class LOCH
 		$statement->execute();
 	}
 
-	function AddCsvData($csvString)
+	public static function AddCsvData($csvString)
 	{
 		$lines = explode(PHP_EOL, $csvString);
 
 		foreach ($lines as $line)
 		{
 			$parsedLine = str_getcsv($line);
-			$this->AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
+			self::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
 		}
 	}
 
-	function GetLocationPoints($from, $to)
+	public static function GetLocationPoints($from, $to)
 	{
-		$db = $this->GetDbConnection();
+		$db = self::GetDbConnection();
 
 		$statement = $db->prepare('SELECT * FROM locationpoints WHERE time >= :from AND time <= :to');
 		$statement->bindValue(':from', $from);
@@ -61,9 +78,9 @@ class LOCH
 		return $rows;
 	}
 
-	function GetLocationPointStatistics($from, $to)
+	public static function GetLocationPointStatistics($from, $to)
 	{
-		$db = $this->GetDbConnection();
+		$db = self::GetDbConnection();
 
 		$statement = $db->prepare('SELECT MIN(accuracy) AS AccuracyMin, MAX(accuracy) AS AccuracyMax, AVG(accuracy) AS AccuracyAverage, SUM(distance_to_point_before) AS Distance FROM locationpoints WHERE time >= :from AND time <= :to');
 		$statement->bindValue(':from', $from);
@@ -73,9 +90,9 @@ class LOCH
 		return $statement->fetch(PDO::FETCH_ASSOC);
 	}
 
-	function CalculateLocationPointDistances()
+	public static function CalculateLocationPointDistances()
 	{
-		$db = $this->GetDbConnection();
+		$db = self::GetDbConnection();
 		$distanceCalculator = new Vincenty();
 
 		$statementNotCalculatedRows = $db->prepare('SELECT id, time, latitude, longitude FROM locationpoints WHERE distance_to_point_before IS NULL ORDER BY time');
@@ -114,5 +131,71 @@ class LOCH
 			$latitudePreviousRow = $row['latitude'];
 			$longitudePreviousRow = $row['longitude'];
 		}
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public static function IsDemoInstallation()
+	{
+		return file_exists(__DIR__ . '/data/demo.txt');
+	}
+
+	private static $InstalledVersion;
+	/**
+	 * @return string
+	 */
+	public static function GetInstalledVersion()
+	{
+		if (self::$InstalledVersion == null)
+		{
+			self::$InstalledVersion = file_get_contents(__DIR__ . '/version.txt');
+		}
+
+		return self::$InstalledVersion;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public static function IsValidSession($sessionKey)
+	{
+		if ($sessionKey === null || empty($sessionKey))
+		{
+			return false;
+		}
+		else
+		{
+			return file_exists(__DIR__ . "/data/sessions/$sessionKey.txt");
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function CreateSession()
+	{
+		if (!file_exists(__DIR__ . '/data/sessions'))
+		{
+			mkdir(__DIR__ . '/data/sessions');
+		}
+
+		$now = time();
+		foreach (new FilesystemIterator(__DIR__ . '/data/sessions') as $file)
+		{
+			if ($now - $file->getCTime() >= 2678400) //31 days
+			{
+				unlink(__DIR__ . '/data/sessions/' . $file->getFilename());
+			}
+		}
+
+		$newSessionKey = uniqid() . uniqid() . uniqid();
+		file_put_contents(__DIR__ . "/data/sessions/$newSessionKey.txt", '');
+		return $newSessionKey;
+	}
+
+	public static function RemoveSession($sessionKey)
+	{
+		unlink(__DIR__ . "/data/sessions/$sessionKey.txt");
 	}
 }

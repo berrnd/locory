@@ -1,0 +1,12 @@
+{
+	"name": "asp.net",
+	"private": true,
+	"dependencies": {
+		"bootstrap": "^3.3.7",
+		"font-awesome": "^4.7.0",
+		"moment": "^2.18.1",
+		"jquery-timeago": "^1.6.1",
+		"leaflet": "^1.1.0",
+		"bootstrap-daterangepicker": "^2.1.25"
+	}
+}
