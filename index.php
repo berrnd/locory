@@ -38,7 +38,18 @@ if (!LOCH::IsDemoInstallation())
 
 		if (!LOCH::IsValidSession($_COOKIE['loch_session']) && $routeName !== 'login')
 		{
-			$response = $response->withRedirect('/login');
+			//Allow also authentication by headers
+			if ($request->hasHeader('LOCH-Username') && $request->hasHeader('LOCH-Password'))
+			{
+				if ($request->getHeaderLine('LOCH-Username') === HTTP_USER && $request->getHeaderLine('LOCH-Password') === HTTP_PASSWORD)
+				{
+					$response = $next($request, $response);
+				}
+			}
+			else
+			{
+				$response = $response->withRedirect('/login');
+			}
 		}
 		else
 		{
