@@ -55,8 +55,11 @@ class LOCH
 
 		foreach ($lines as $line)
 		{
-			$parsedLine = str_getcsv($line);
-			self::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
+			if (!empty($line))
+			{
+				$parsedLine = str_getcsv($line);
+				self::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
+			}
 		}
 	}
 
