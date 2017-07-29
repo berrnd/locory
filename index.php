@@ -29,7 +29,7 @@ if (PHP_SAPI === 'cli')
 	$app->add(new \pavlakis\cli\CliRequest());
 }
 
-if (!LOCH::IsDemoInstallation())
+if (!LOCH::IsDemoInstallation() && PHP_SAPI !== 'cli')
 {
 	$sessionMiddleware = function(Request $request, Response $response, callable $next)
 	{
