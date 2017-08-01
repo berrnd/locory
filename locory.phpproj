@@ -2,13 +2,13 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Name>LOCH</Name>
+    <Name>locory</Name>
     <ProjectGuid>174b96d0-7d4f-446a-b86e-ed5d7ffac534</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>
     </RootNamespace>
     <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
-    <AssemblyName>LOCH</AssemblyName>
+    <AssemblyName>locory</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <IncludeDebugInformation>true</IncludeDebugInformation>
@@ -19,9 +19,9 @@
   <ItemGroup>
     <Compile Include="config-dist.php" />
     <Compile Include="index.php" />
-    <Compile Include="LOCH.php" />
-    <Compile Include="LochDbMigrator.php" />
-    <Compile Include="LochDemoDataGenerator.php" />
+    <Compile Include="Locory.php" />
+    <Compile Include="LocoryDbMigrator.php" />
+    <Compile Include="LocoryDemoDataGenerator.php" />
     <Compile Include="views\layout.php" />
     <Compile Include="views\login.php" />
   </ItemGroup>
@@ -29,8 +29,8 @@
     <Content Include="bower.json" />
     <Content Include="build.bat" />
     <Content Include="composer.json" />
-    <Content Include="LOCH.js" />
-    <Content Include="LOCH.png" />
+    <Content Include="locory.js" />
+    <Content Include="locory.png" />
     <Content Include="views\dashboard.js" />
     <Content Include="views\dashboard.php" />
     <Content Include="README.md" />

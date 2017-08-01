@@ -1,6 +1,6 @@
 <?php
 
-class LochDbMigrator
+class LocoryDbMigrator
 {
 	public static function MigrateDb(PDO $pdo)
 	{

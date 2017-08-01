@@ -6,9 +6,9 @@ use Slim\Views\PhpRenderer;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/data/config.php';
-require_once __DIR__ . '/LOCH.php';
-require_once __DIR__ . '/LochDbMigrator.php';
-require_once __DIR__ . '/LochDemoDataGenerator.php';
+require_once __DIR__ . '/Locory.php';
+require_once __DIR__ . '/LocoryDbMigrator.php';
+require_once __DIR__ . '/LocoryDemoDataGenerator.php';
 
 $app = new \Slim\App;
 
@@ -29,19 +29,19 @@ if (PHP_SAPI === 'cli')
 	$app->add(new \pavlakis\cli\CliRequest());
 }
 
-if (!LOCH::IsDemoInstallation() && PHP_SAPI !== 'cli')
+if (!Locory::IsDemoInstallation() && PHP_SAPI !== 'cli')
 {
 	$sessionMiddleware = function(Request $request, Response $response, callable $next)
 	{
 		$route = $request->getAttribute('route');
 		$routeName = $route->getName();
 
-		if (!LOCH::IsValidSession($_COOKIE['loch_session']) && $routeName !== 'login')
+		if (!Locory::IsValidSession($_COOKIE['locory_session']) && $routeName !== 'login')
 		{
 			//Allow also authentication by headers
-			if ($request->hasHeader('LOCH-Username') && $request->hasHeader('LOCH-Password'))
+			if ($request->hasHeader('Locory-Username') && $request->hasHeader('Locory-Password'))
 			{
-				if ($request->getHeaderLine('LOCH-Username') === HTTP_USER && $request->getHeaderLine('LOCH-Password') === HTTP_PASSWORD)
+				if ($request->getHeaderLine('Locory-Username') === HTTP_USER && $request->getHeaderLine('Locory-Password') === HTTP_PASSWORD)
 				{
 					$response = $next($request, $response);
 				}
@@ -77,8 +77,8 @@ $app->post('/login', function(Request $request, Response $response)
 	{
 		if ($postParams['username'] === HTTP_USER && $postParams['password'] === HTTP_PASSWORD)
 		{
-			$sessionKey = LOCH::CreateSession();
-			setcookie('loch_session', $sessionKey, time()+2592000); //30 days
+			$sessionKey = Locory::CreateSession();
+			setcookie('locory_session', $sessionKey, time()+2592000); //30 days
 
 			return $response->withRedirect('/');
 		}
@@ -95,13 +95,13 @@ $app->post('/login', function(Request $request, Response $response)
 
 $app->get('/logout', function(Request $request, Response $response)
 {
-	LOCH::RemoveSession($_COOKIE['loch_session']);
+	Locory::RemoveSession($_COOKIE['locory_session']);
 	return $response->withRedirect('/');
 });
 
 $app->get('/', function(Request $request, Response $response)
 {
-	LOCH::GetDbConnection(true); //For database schema migration
+	Locory::GetDbConnection(true); //For database schema migration
 
 	return $this->renderer->render($response, '/layout.php', [
 		'title' => 'Dashboard',
@@ -113,18 +113,18 @@ $app->group('/api', function()
 {
 	$this->post('/add/csv', function(Request $request, Response $response)
 	{
-		LOCH::AddCsvData($request->getBody()->getContents());
+		Locory::AddCsvData($request->getBody()->getContents());
 		echo json_encode(array('success' => true));
 	});
 
 	$this->get('/get/locationpoints/{from}/{to}', function(Request $request, Response $response, $args)
 	{
-		echo json_encode(LOCH::GetLocationPoints($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
+		echo json_encode(Locory::GetLocationPoints($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
 	});
 
 	$this->get('/get/statistics/{from}/{to}', function(Request $request, Response $response, $args)
 	{
-		echo json_encode(LOCH::GetLocationPointStatistics($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
+		echo json_encode(Locory::GetLocationPointStatistics($args['from'] . ' 00:00:00', $args['to'] . ' 23:59:59'));
 	});
 })->add(function($request, $response, $next)
 {
@@ -136,14 +136,14 @@ $app->group('/cli', function()
 {
 	$this->get('/calculate/distance', function(Request $request, Response $response)
 	{
-		LOCH::CalculateLocationPointDistances();
+		Locory::CalculateLocationPointDistances();
 	});
 
 	$this->get('/recreatedemo', function(Request $request, Response $response)
 	{
-		if (LOCH::IsDemoInstallation())
+		if (Locory::IsDemoInstallation())
 		{
-			LochDemoDataGenerator::RecreateDemo();
+			LocoryDemoDataGenerator::RecreateDemo();
 		}
 	});
 })->add(function($request, $response, $next)

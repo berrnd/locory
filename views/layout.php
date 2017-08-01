@@ -8,18 +8,18 @@
 	<meta name="robots" content="noindex,nofollow" />
 
 	<meta name="author" content="Bernd Bestel (bernd@berrnd.de)" />
-	<link rel="icon" href="/LOCH.png" />
+	<link rel="icon" href="/locory.png" />
 
-	<title><?php echo $title; ?> | LOCH</title>
+	<title><?php echo $title; ?> | locory</title>
 
-	<link href="/bower_components/bootstrap/dist/css/bootstrap.min.css?v=<?php echo LOCH::GetInstalledVersion(); ?>" rel="stylesheet" />
-	<link href="/bower_components/font-awesome/css/font-awesome.min.css?v=<?php echo LOCH::GetInstalledVersion(); ?>" rel="stylesheet" />
-	<link href="/bower_components/leaflet/dist/leaflet.css?v=<?php echo LOCH::GetInstalledVersion(); ?>" rel="stylesheet" />
-	<link href="/bower_components/bootstrap-daterangepicker/daterangepicker.css?v=<?php echo LOCH::GetInstalledVersion(); ?>" rel="stylesheet" />
-	<link href="/style.css?v=<?php echo LOCH::GetInstalledVersion(); ?>" rel="stylesheet" />
+	<link href="/bower_components/bootstrap/dist/css/bootstrap.min.css?v=<?php echo Locory::GetInstalledVersion(); ?>" rel="stylesheet" />
+	<link href="/bower_components/font-awesome/css/font-awesome.min.css?v=<?php echo Locory::GetInstalledVersion(); ?>" rel="stylesheet" />
+	<link href="/bower_components/leaflet/dist/leaflet.css?v=<?php echo Locory::GetInstalledVersion(); ?>" rel="stylesheet" />
+	<link href="/bower_components/bootstrap-daterangepicker/daterangepicker.css?v=<?php echo Locory::GetInstalledVersion(); ?>" rel="stylesheet" />
+	<link href="/style.css?v=<?php echo Locory::GetInstalledVersion(); ?>" rel="stylesheet" />
 
-	<script src="/bower_components/jquery/dist/jquery.min.js?v=<?php echo LOCH::GetInstalledVersion(); ?>"></script>
-	<script src="/LOCH.js?v=<?php echo LOCH::GetInstalledVersion(); ?>"></script>
+	<script src="/bower_components/jquery/dist/jquery.min.js?v=<?php echo Locory::GetInstalledVersion(); ?>"></script>
+	<script src="/locory.js?v=<?php echo Locory::GetInstalledVersion(); ?>"></script>
 </head>
 
 <body>
@@ -31,7 +31,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="/">LOCH</a>
+				<a class="navbar-brand" href="/">locory</a>
 			</div>
 
 			<div id="navbar" class="navbar-collapse collapse">
@@ -72,36 +72,36 @@
 				</ul>
 
 				<div class="nav-copyright nav nav-sidebar">
-					LOCH is a project by
+					locory is a project by
 					<a class="discrete-link" href="https://berrnd.de" target="_blank">Bernd Bestel</a>
 					<br />
 					Created with passion since 2016
 					<br />
-					Version <?php echo LOCH::GetInstalledVersion(); ?>
+					Version <?php echo Locory::GetInstalledVersion(); ?>
 					<br />
 					Life runs on code
 					<br />
-					<a class="discrete-link" href="https://github.com/berrnd/LOCH" target="_blank">
+					<a class="discrete-link" href="https://github.com/berrnd/locory" target="_blank">
 						<i class="fa fa-github"></i>
 					</a>
 				</div>
 
 			</div>
 
-			<script>LOCH.ContentPage = '<?php echo $contentPage; ?>';</script>
+			<script>Locory.ContentPage = '<?php echo $contentPage; ?>';</script>
 			<?php include $contentPage; ?>
 
 		</div>
 	</div>
 
-	<script src="/bower_components/bootstrap/dist/js/bootstrap.min.js?v=<?php echo LOCH::GetInstalledVersion(); ?>"></script>
-	<script src="/bower_components/moment/min/moment.min.js?v=<?php echo LOCH::GetInstalledVersion(); ?>"></script>
-	<script src="/bower_components/jquery-timeago/jquery.timeago.js?v=<?php echo LOCH::GetInstalledVersion(); ?>"></script>
-	<script src="/bower_components/bootstrap-daterangepicker/daterangepicker.js?v=<?php echo LOCH::GetInstalledVersion(); ?>"></script>
-	<script src="/bower_components/leaflet/dist/leaflet.js?v=<?php echo LOCH::GetInstalledVersion(); ?>"></script>
+	<script src="/bower_components/bootstrap/dist/js/bootstrap.min.js?v=<?php echo Locory::GetInstalledVersion(); ?>"></script>
+	<script src="/bower_components/moment/min/moment.min.js?v=<?php echo Locory::GetInstalledVersion(); ?>"></script>
+	<script src="/bower_components/jquery-timeago/jquery.timeago.js?v=<?php echo Locory::GetInstalledVersion(); ?>"></script>
+	<script src="/bower_components/bootstrap-daterangepicker/daterangepicker.js?v=<?php echo Locory::GetInstalledVersion(); ?>"></script>
+	<script src="/bower_components/leaflet/dist/leaflet.js?v=<?php echo Locory::GetInstalledVersion(); ?>"></script>
 
 	<?php if (file_exists(__DIR__ . '/' . str_replace('.php', '.js', $contentPage))) : ?>
-		<script src="/views/<?php echo str_replace('.php', '.js', $contentPage) . '?v=' . LOCH::GetInstalledVersion(); ?>"></script>
+		<script src="/views/<?php echo str_replace('.php', '.js', $contentPage) . '?v=' . Locory::GetInstalledVersion(); ?>"></script>
 	<?php endif; ?>
 
 	<?php if (file_exists(__DIR__ . '/../data/add_before_end_body.html')) include __DIR__ . '/../data/add_before_end_body.html' ?>

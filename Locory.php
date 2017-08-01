@@ -3,7 +3,7 @@
 use Location\Coordinate;
 use Location\Distance\Vincenty;
 
-class LOCH
+class Locory
 {
 	private static $DbConnection;
 	/**
@@ -24,11 +24,11 @@ class LOCH
 			if ($doMigrations === true)
 			{
 				self::$DbConnection->exec("CREATE TABLE IF NOT EXISTS migrations (migration SMALLINT NOT NULL, execution_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (migration))");
-				LochDbMigrator::MigrateDb(self::$DbConnection);
+				LocoryDbMigrator::MigrateDb(self::$DbConnection);
 
 				if (self::IsDemoInstallation())
 				{
-					LochDemoDataGenerator::PopulateDemoData(self::$DbConnection);
+					LocoryDemoDataGenerator::PopulateDemoData(self::$DbConnection);
 				}
 			}
 		}

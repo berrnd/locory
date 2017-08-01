@@ -1,6 +1,6 @@
 <?php
 
-class LochDemoDataGenerator
+class LocoryDemoDataGenerator
 {
 	public static function PopulateDemoData(PDO $pdo)
 	{
@@ -39,7 +39,7 @@ class LochDemoDataGenerator
 				$startDateForTrack1->modify('+1 second');
 				$line = str_replace('TIME', $startDateForTrack1->format('Y-m-d H:i:s'), $line);
 				$parsedLine = str_getcsv($line);
-				LOCH::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
+				Locory::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
 			}
 
 			$linesTrack2 = explode(PHP_EOL, $csvTrack2);
@@ -48,7 +48,7 @@ class LochDemoDataGenerator
 				$startDateForTrack2->modify('+1 second');
 				$line = str_replace('TIME', $startDateForTrack2->format('Y-m-d H:i:s'), $line);
 				$parsedLine = str_getcsv($line);
-				LOCH::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
+				Locory::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
 			}
 
 			$linesTrack3 = explode(PHP_EOL, $csvTrack3);
@@ -57,7 +57,7 @@ class LochDemoDataGenerator
 				$startDateForTrack3->modify('+1 second');
 				$line = str_replace('TIME', $startDateForTrack3->format('Y-m-d H:i:s'), $line);
 				$parsedLine = str_getcsv($line);
-				LOCH::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
+				Locory::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
 			}
 
 			$linesTrack4 = explode(PHP_EOL, $csvTrack4);
@@ -66,20 +66,20 @@ class LochDemoDataGenerator
 				$startDateForTrack4->modify('+1 second');
 				$line = str_replace('TIME', $startDateForTrack4->format('Y-m-d H:i:s'), $line);
 				$parsedLine = str_getcsv($line);
-				LOCH::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
+				Locory::AddLocationPoint($parsedLine[0], $parsedLine[1], $parsedLine[2], $parsedLine[3]);
 			}
 
-			LOCH::CalculateLocationPointDistances();
+			Locory::CalculateLocationPointDistances();
 		}
 	}
 
 	public static function RecreateDemo()
 	{
-		$db = LOCH::GetDbConnection();
+		$db = Locory::GetDbConnection();
 		$db->exec('TRUNCATE TABLE migrations');
 		$db->exec('TRUNCATE TABLE locationpoints');
 
-		$db = LOCH::GetDbConnection(true);
+		$db = Locory::GetDbConnection(true);
 		self::PopulateDemoData($db);
 	}
 }

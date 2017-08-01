@@ -1,27 +1,27 @@
-﻿LOCH.SetupMap("map");
+﻿Locory.SetupMap("map");
 
 function ReloadMap(from, to)
 {
 	if (moment.isMoment(from) && moment.isMoment(to))
 	{
-		LOCH.Map.removeLayer(LOCH.LocationPointsLayer);
-		LOCH.LocationPointsLayer = new L.FeatureGroup();
-		LOCH.Map.addLayer(LOCH.LocationPointsLayer);
+		Locory.Map.removeLayer(Locory.LocationPointsLayer);
+		Locory.LocationPointsLayer = new L.FeatureGroup();
+		Locory.Map.addLayer(Locory.LocationPointsLayer);
 
-		LOCH.FetchJson("/api/get/locationpoints/" + from.format("YYYY-MM-DD") + "/" + to.format("YYYY-MM-DD"),
+		Locory.FetchJson("/api/get/locationpoints/" + from.format("YYYY-MM-DD") + "/" + to.format("YYYY-MM-DD"),
 			function(points)
 			{
 				if (points.length > 0)
 				{
 					for (point of points)
 					{
-						L.marker([point.latitude, point.longitude]).addTo(LOCH.LocationPointsLayer);
+						L.marker([point.latitude, point.longitude]).addTo(Locory.LocationPointsLayer);
 					}
 
-					LOCH.Map.fitBounds(LOCH.LocationPointsLayer.getBounds());
+					Locory.Map.fitBounds(Locory.LocationPointsLayer.getBounds());
 					document.getElementById("summary-location-points").innerText = points.length;
 
-					LOCH.FetchJson("/api/get/statistics/" + from.format("YYYY-MM-DD") + "/" + to.format("YYYY-MM-DD"),
+					Locory.FetchJson("/api/get/statistics/" + from.format("YYYY-MM-DD") + "/" + to.format("YYYY-MM-DD"),
 						function(statistics)
 						{
 							document.getElementById("summary-accuracy-min").innerText = parseFloat(statistics.AccuracyMin).toFixed(0);
@@ -120,6 +120,6 @@ $(function()
 		MoveDateRange(false);
 	});
 
-	SetupDateRangePicker(LOCH.DefaultFrom, LOCH.DefaultTo);
-	ReloadMap(LOCH.DefaultFrom, LOCH.DefaultTo);
+	SetupDateRangePicker(Locory.DefaultFrom, Locory.DefaultTo);
+	ReloadMap(Locory.DefaultFrom, Locory.DefaultTo);
 });

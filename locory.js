@@ -1,18 +1,18 @@
-﻿var LOCH = {};
+﻿var Locory = {};
 
 $(function()
 {
-	var menuItem = $('.nav').find("[data-nav-for-page='" + LOCH.ContentPage + "']");
+	var menuItem = $('.nav').find("[data-nav-for-page='" + Locory.ContentPage + "']");
 	menuItem.addClass('active');
 
-	LOCH.DefaultFrom = moment().subtract(1, "days");
-	LOCH.DefaultTo = moment().subtract(1, "days");
+	Locory.DefaultFrom = moment().subtract(1, "days");
+	Locory.DefaultTo = moment().subtract(1, "days");
 
 	$.timeago.settings.allowFuture = true;
 	$('time.timeago').timeago();
 });
 
-LOCH.FetchJson = function(url, success, error)
+Locory.FetchJson = function(url, success, error)
 {
 	var xhr = new XMLHttpRequest();
 
@@ -41,20 +41,20 @@ LOCH.FetchJson = function(url, success, error)
 	xhr.send();
 }
 
-LOCH.SetupMap = function(mapElementId)
+Locory.SetupMap = function(mapElementId)
 {
-	LOCH.Map = L.map(mapElementId);
+	Locory.Map = L.map(mapElementId);
 
 	L.tileLayer("https://osm-tile-cache.berrnd.org/{z}/{x}/{y}.png", {
 		attribution: 'Map data &copy; <a target="_blank" href="https://www.openstreetmap.org">OpenStreetMap</a> contributors',
 		maxZoom: 18
-	}).addTo(LOCH.Map);
+	}).addTo(Locory.Map);
 
-	LOCH.LocationPointsLayer = new L.FeatureGroup();
-	LOCH.Map.addLayer(LOCH.LocationPointsLayer);
+	Locory.LocationPointsLayer = new L.FeatureGroup();
+	Locory.Map.addLayer(Locory.LocationPointsLayer);
 }
 
-LOCH.GetUriParam = function(key)
+Locory.GetUriParam = function(key)
 {
 	var currentUri = decodeURIComponent(window.location.search.substring(1));
 	var vars = currentUri.split('&');

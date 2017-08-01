@@ -4,7 +4,7 @@
 
 	$("#username").focus();
 
-	if (LOCH.GetUriParam("invalid") === "true")
+	if (Locory.GetUriParam("invalid") === "true")
 	{
 		$("#login-error").text("Invalid credentials, please try again.");
 		$("#login-error").show();
