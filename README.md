@@ -1,11 +1,11 @@
 # locory
-A private/selfhosted location history solution
+A private / self-hosted location history solution
 
 ## Motivation
 I love to have a location history, but because such data is too private to let this do others for you, I searched for a self hosted solution, found nothing that fitted my needs completely, so this is locory.
 
 # Give it a try
-Public demo of the latest version &rarr; [https://demo.locory.info](https://demo.locory.info) 
+Public demo of the latest version &rarr; [https://locory-demo.berrnd.xyz](https://locory-demo.berrnd.xyz)
 
 ## How to install
 Just unpack the [latest release](https://github.com/berrnd/locory/releases/latest) on your PHP enabled webserver, copy `config-dist.php` to `data/config.php`, edit it to your needs, create the new database on the server you configured, ensure that the `data` directory is writable and you're ready to go. Alternatively clone this repository and install composer dependencies manually.
